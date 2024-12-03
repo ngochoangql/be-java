@@ -32,6 +32,7 @@ public class RelayService {
         return relayRepository.findByDeviceId(deviceId);
     }
 
+
     public void deleteRelays(String deviceId) {
         relayRepository.deleteRelaysByDeviceId(deviceId);
     }

@@ -58,7 +58,7 @@ public class WebSocketSessionManager {
             sessions.forEach(session -> {
                 List<String> events = sessionEvents.get(session);
                 if (events != null && events.contains(event)) {
-                    if (session.isOpen() && !session.getId().equals(senderSession.getId())) {
+                    if (session.isOpen() && (senderSession == null || !session.getId().equals(senderSession.getId()))) {
                         try {
                             session.sendMessage(new TextMessage(message));
                         } catch (Exception e) {

@@ -19,8 +19,12 @@ public class DeviceService {
         return deviceRepository.findAll();
     }
 
-    public Optional<Device> getDeviceById(String id) {
-        return deviceRepository.findById(id);
+    public Device getDeviceByProductId(String productId) {
+        return deviceRepository.getDeviceByProductId(productId);
+    }
+
+    public Device getDeviceById(String id) {
+        return deviceRepository.getDeviceById(id);
     }
 
     public Device createDevice(Device device) {
