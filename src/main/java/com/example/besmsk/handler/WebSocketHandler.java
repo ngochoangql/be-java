@@ -1,9 +1,11 @@
 package com.example.besmsk.handler;
 
 
+import com.example.besmsk.service.RelayService;
 import com.example.besmsk.util.WebSocketSessionManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,7 +17,12 @@ import java.util.Map;
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private ObjectMapper objectMapper = new ObjectMapper();
+    private final RelayService relayService;  // Khai báo RelayService
 
+    // Constructor tiêm RelayService
+    public WebSocketHandler(RelayService relayService) {
+        this.relayService = relayService;
+    }
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
@@ -29,7 +36,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         if ("register".equals(event)) {
             String productId =  jsonObject.getString("productId");
 
-            String eventsString = jsonObject.getString("events");
+            String eventsString = jsonObject.getJSONArray("events").toString();
             ObjectMapper objectMapper = new ObjectMapper();
 
             List<String> events = objectMapper.readValue(eventsString, List.class);
@@ -45,7 +52,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         } else if ("request".equals(event)) {
 
             String productId = jsonObject.getString("productId");
-            String mess =  jsonObject.getString("data");
+            String mess =  jsonObject.getJSONObject("data").toString();
             JSONObject content = jsonObject.getJSONObject("data");
 
             // Gửi dữ liệu đến tất cả các client đã đăng ký nghe theo productId
@@ -53,9 +60,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
         } else if ("notify".equals(event)) {
 
             String productId = jsonObject.getString("productId");
-            String mess =  jsonObject.getString("data");
+            String mess =  jsonObject.getJSONObject("data").toString();
             JSONObject content = jsonObject.getJSONObject("data");
-
+            if ("notifyRelay".equals(content.getString("event"))) {
+                relayService.updateStatusRelayById(content.getString("id"), content.getInt("status") == 1);
+            }
 
             // Gửi dữ liệu đến tất cả các client đã đăng ký nghe theo productId
             WebSocketSessionManager.sendMessageToProduct(productId, content.getString("event"),mess,session);

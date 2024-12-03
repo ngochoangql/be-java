@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface RelayRepository extends MongoRepository<Relay, String> {
     List<Relay> findByDeviceId(String deviceId);
+//    List<Relay> findByDeviceId(String device);
     void deleteRelaysByDeviceId(String deviceId);
 }
