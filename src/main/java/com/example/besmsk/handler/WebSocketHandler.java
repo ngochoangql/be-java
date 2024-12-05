@@ -1,28 +1,37 @@
 package com.example.besmsk.handler;
 
 
+import com.example.besmsk.model.Device;
+import com.example.besmsk.model.Relay;
+import com.example.besmsk.model.Schedule;
+import com.example.besmsk.service.DeviceService;
 import com.example.besmsk.service.RelayService;
+import com.example.besmsk.service.ScheduleService;
 import com.example.besmsk.util.WebSocketSessionManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private final RelayService relayService;  // Khai báo RelayService
+    private final ScheduleService scheduleService;  // Khai báo RelayService
+    private final DeviceService deviceService;
 
     // Constructor tiêm RelayService
-    public WebSocketHandler(RelayService relayService) {
+    public WebSocketHandler(RelayService relayService, ScheduleService scheduleService, DeviceService deviceService) {
         this.relayService = relayService;
+        this.scheduleService = scheduleService;
+        this.deviceService = deviceService;
     }
+
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
@@ -34,7 +43,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         // Xử lý sự kiện "register"
         if ("register".equals(event)) {
-            String productId =  jsonObject.getString("productId");
+            String productId = jsonObject.getString("productId");
 
             String eventsString = jsonObject.getJSONArray("events").toString();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -42,7 +51,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             List<String> events = objectMapper.readValue(eventsString, List.class);
             if (productId != null) {
                 WebSocketSessionManager.register(productId, session);
-                WebSocketSessionManager.registerSession(session,events);
+                WebSocketSessionManager.registerSession(session, events);
                 System.out.println("Device registered with productId: " + productId);
 
                 session.sendMessage(new TextMessage("Registered with productId: " + productId));
@@ -52,23 +61,35 @@ public class WebSocketHandler extends TextWebSocketHandler {
         } else if ("request".equals(event)) {
 
             String productId = jsonObject.getString("productId");
-            String mess =  jsonObject.getJSONObject("data").toString();
+            String mess = jsonObject.getJSONObject("data").toString();
             JSONObject content = jsonObject.getJSONObject("data");
 
             // Gửi dữ liệu đến tất cả các client đã đăng ký nghe theo productId
-            WebSocketSessionManager.sendMessageToProduct(productId,content.getString("event"),mess,session);
+            WebSocketSessionManager.sendMessageToProduct(productId, content.getString("event"), mess, session);
         } else if ("notify".equals(event)) {
 
             String productId = jsonObject.getString("productId");
-            String mess =  jsonObject.getJSONObject("data").toString();
             JSONObject content = jsonObject.getJSONObject("data");
             if ("notifyRelay".equals(content.getString("event"))) {
-                relayService.updateStatusRelayById(content.getString("id"), content.getInt("status") == 1);
+                Device device = deviceService.getDeviceByProductId(productId);
+                Relay relay = relayService.getRelayByDeviceIdAndRelayNumber(device.getId(), content.getInt("relayNumber"));
+                content.put("id", relay.getId());
+                relayService.updateStatusRelayById(productId, content.getInt("relayNumber"), content.getInt("status") == 1);
             }
-
+            if ("notifyCreateSchedule".equals(content.getString("event"))) {
+//                Schedule schedule = new Schedule(productId,content.getString("time"),content.getString("code"), new Date());
+//                scheduleService.createSchedule(schedule);
+            }
+            if ("notifyUpdateSchedule".equals(content.getString("event"))) {
+                Schedule schedule = scheduleService.getScheduleById(content.getString("id"));
+                StringBuilder sb = new StringBuilder(schedule.getCode());
+                sb.setCharAt(0, '0');  // Thay đổi ký tự đầu tiên thành 'H'
+                schedule.setCode(sb.toString());
+                scheduleService.updateScheduleById(content.getString("id"), schedule);
+            }
             // Gửi dữ liệu đến tất cả các client đã đăng ký nghe theo productId
-            WebSocketSessionManager.sendMessageToProduct(productId, content.getString("event"),mess,session);
-        }else {
+            WebSocketSessionManager.sendMessageToProduct(productId, content.getString("event"), content.toString(), session);
+        } else {
             session.sendMessage(new TextMessage("Unrecognized event: " + event));
         }
     }

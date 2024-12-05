@@ -44,4 +44,8 @@ public class ScheduleService {
                 })
                 .orElse(false);
     }
+
+    public Schedule getScheduleById(String id) {
+        return scheduleRepository.getScheduleById(id);
+    }
 }
