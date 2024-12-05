@@ -22,8 +22,8 @@ public class ScheduleController {
     @PostMapping
     public ResponseEntity<Object> createSchedule(@RequestBody Schedule schedule) {
         Schedule savedSchedule = scheduleService.createSchedule(schedule);
-        WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(),"createSchedule",
-                "{\"event\":\"createSchedule\",\"time\":\""+schedule.getTime()+"\",\"id\":\""+savedSchedule.getId()+"\",\"code\":\""+schedule.getCode()+"\"}",null);
+        WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(), "createSchedule",
+                "{\"event\":\"createSchedule\",\"time\":\"" + schedule.getTime() + "\",\"id\":\"" + savedSchedule.getId() + "\",\"code\":\"" + schedule.getCode() + "\"}", null);
         return ResponseEntity.ok().body(Map.of("code", 200));
     }
 
@@ -34,14 +34,14 @@ public class ScheduleController {
 
     @PatchMapping("/{scheduleId}")
     public ResponseEntity<Object> updateScheduleById(@PathVariable String scheduleId, @RequestBody Schedule schedule) {
-        scheduleService.updateScheduleById(scheduleId,schedule);
+        scheduleService.updateScheduleById(scheduleId, schedule);
         System.out.println(scheduleId);
-        if (schedule.getCode().charAt(0) == '1'){
-            WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(),"createSchedule",
-                    "{\"event\":\"createSchedule\",\"time\":\""+schedule.getTime()+"\",\"id\":\""+scheduleId+"\",\"code\":\""+schedule.getCode()+"\"}",null);
-        }else{
-            WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(),"deleteSchedule",
-                    "{\"event\":\"deleteSchedule\",\"id\":\""+scheduleId+"\"}",null);
+        if (schedule.getCode().charAt(0) == '1') {
+            WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(), "createSchedule",
+                    "{\"event\":\"createSchedule\",\"time\":\"" + schedule.getTime() + "\",\"id\":\"" + scheduleId + "\",\"code\":\"" + schedule.getCode() + "\"}", null);
+        } else {
+            WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(), "deleteSchedule",
+                    "{\"event\":\"deleteSchedule\",\"id\":\"" + scheduleId + "\"}", null);
         }
 
         return ResponseEntity.ok().body(Map.of("code", 200));
@@ -51,8 +51,8 @@ public class ScheduleController {
     public ResponseEntity<Object> deleteScheduleById(@PathVariable String scheduleId) {
         Schedule schedule = scheduleService.getScheduleById(scheduleId);
         if (scheduleService.deleteScheduleById(scheduleId)) {
-            WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(),"deleteSchedule",
-                    "{\"event\":\"deleteSchedule\",\"id\":\""+scheduleId+"\"}",null);
+            WebSocketSessionManager.sendMessageToProduct(schedule.getProductId(), "deleteSchedule",
+                    "{\"event\":\"deleteSchedule\",\"id\":\"" + scheduleId + "\"}", null);
             return ResponseEntity.ok().body(Map.of("code", 200));
         }
         return ResponseEntity.ok().body(Map.of("code", 404));
