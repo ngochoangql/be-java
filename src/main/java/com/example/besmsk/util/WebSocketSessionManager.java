@@ -42,6 +42,7 @@ public class WebSocketSessionManager {
     // Đăng ký session theo productId
     public static void register(String productId, WebSocketSession session) {
         productSessions.computeIfAbsent(productId, k -> new ArrayList<>()).add(session);
+
     }
 
     // Hủy session khi ngắt kết nối
@@ -49,6 +50,7 @@ public class WebSocketSessionManager {
         productSessions.forEach((productId, sessions) ->
                 sessions.removeIf(s -> s.getId().equals(session.getId()))
         );
+        sessionEvents.remove(session);
     }
 
     // Gửi tin nhắn tới tất cả các session theo productId
