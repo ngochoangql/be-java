@@ -20,7 +20,7 @@ public class DeviceService {
     }
 
     public Device getDeviceByProductId(String productId) {
-        return deviceRepository.getDeviceByProductId(productId);
+        return deviceRepository.findByProductId(productId);
     }
 
     public Device getDeviceById(String id) {

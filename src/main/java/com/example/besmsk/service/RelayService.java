@@ -24,7 +24,7 @@ public class RelayService {
     }
 
     public boolean updateStatusRelayById(String productId, int relayNumber, boolean status) {
-        Device device = deviceRepository.getDeviceByProductId(productId);
+        Device device = deviceRepository.findByProductId(productId);
         List<Relay> relays = relayRepository.findByDeviceId(device.getId());
         for (Relay relay : relays) {
             if (relay.getRelayNumber() == relayNumber) {

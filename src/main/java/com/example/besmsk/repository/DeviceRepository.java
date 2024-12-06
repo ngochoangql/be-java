@@ -8,5 +8,5 @@ import java.util.List;
 public interface DeviceRepository extends MongoRepository<Device, String> {
 
     Device getDeviceById(String id);
-    Device getDeviceByProductId(String productId);
+    Device findByProductId(String productId);
 }

@@ -16,4 +16,84 @@ public class Parameter {
     private double activePower;
     private double apparentPower;
     private Date createdAt;
+
+    public Parameter() {
+    }
+
+    public Parameter(String productId, String deviceId, double current, double voltage, double activePower, double apparentPower, Date createdAt) {
+        this.productId = productId;
+        this.deviceId = deviceId;
+        this.current = current;
+        this.voltage = voltage;
+        this.activePower = activePower;
+        this.apparentPower = apparentPower;
+        this.createdAt = createdAt;
+    }
+
+    public Parameter(String id, String productId, String deviceId, double current, double voltage, double activePower, double apparentPower, Date createdAt) {
+        this.id = id;
+        this.productId = productId;
+        this.deviceId = deviceId;
+        this.current = current;
+        this.voltage = voltage;
+        this.activePower = activePower;
+        this.apparentPower = apparentPower;
+        this.createdAt = createdAt;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public double getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(double current) {
+        this.current = current;
+    }
+
+    public double getVoltage() {
+        return voltage;
+    }
+
+    public void setVoltage(double voltage) {
+        this.voltage = voltage;
+    }
+
+    public double getActivePower() {
+        return activePower;
+    }
+
+    public void setActivePower(double activePower) {
+        this.activePower = activePower;
+    }
+
+    public double getApparentPower() {
+        return apparentPower;
+    }
+
+    public void setApparentPower(double apparentPower) {
+        this.apparentPower = apparentPower;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 }

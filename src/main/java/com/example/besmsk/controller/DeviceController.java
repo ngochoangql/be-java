@@ -27,17 +27,23 @@ public class DeviceController {
 
     @PostMapping
     public Device createDevice(@RequestBody Device device) {
-        Device newDevice = deviceService.createDevice(device);
-        for (int i = 1; i <= device.getNumOfRelay(); i++) {
-            Relay relay = relayService.createRelay(new Relay(
-                    newDevice.getId(),
-                    i,
-                    "Relay " + i,
-                    false
-            ));
-        }
+        Device device1 = deviceService.getDeviceByProductId(device.getProductId());
+        System.out.println(device1.getId().toString());
 
-        return deviceService.createDevice(device);
+        if (device1 == null) {
+            Device newDevice = deviceService.createDevice(device);
+            for (int i = 1; i <= device.getNumOfRelay(); i++) {
+                Relay relay = relayService.createRelay(new Relay(
+                        newDevice.getId(),
+                        i,
+                        "Relay " + i,
+                        false
+                ));
+            }
+
+            return deviceService.createDevice(device);
+        }
+        return device;
     }
 
     @DeleteMapping("/{deviceId}")
