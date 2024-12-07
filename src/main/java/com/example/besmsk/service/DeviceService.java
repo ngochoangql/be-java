@@ -33,6 +33,10 @@ public class DeviceService {
         return deviceRepository.save(device);
     }
 
+    public Device updateDevice(Device device) {
+        return deviceRepository.save(device);
+    }
+
     public void deleteDevice(String id) {
         if (!deviceRepository.existsById(id)) {
             throw new IllegalArgumentException("Device with ID " + id + " does not exist");

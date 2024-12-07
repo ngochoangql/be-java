@@ -3,9 +3,11 @@ package com.example.besmsk.controller;
 
 import com.example.besmsk.model.Device;
 import com.example.besmsk.model.Parameter;
+import com.example.besmsk.model.Relay;
 import com.example.besmsk.model.Used;
 import com.example.besmsk.service.DeviceService;
 import com.example.besmsk.service.ParameterService;
+import com.example.besmsk.service.RelayService;
 import com.example.besmsk.service.UsedService;
 import com.example.besmsk.util.WebSocketSessionManager;
 import org.json.JSONException;
@@ -28,6 +30,8 @@ public class DataController {
     private UsedService usedService;
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private RelayService relayService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -39,7 +43,22 @@ public class DataController {
 
         // Cập nhật thời gian của phần tử cuối cùng trong danh sách parameters
         parameters.get(parameters.size() - 1).setCreatedAt(new Date());
-        parameters.get(parameters.size() - 1).setProductId(productId);
+        if (parameters.get(parameters.size() - 1).getCurrent() >= 1500){
+            Device device = deviceService.getDeviceByProductId(productId);
+            List<Relay> relays = relayService.getRelaysByDeviceId(device.getId());
+            for (Relay relay : relays) {
+                WebSocketSessionManager.sendMessageToProduct(productId, "updateRelay",
+                        "{\"event\":\"updateRelay\",\"relayNumber\":"+relay.getRelayNumber()+",\"id\":\"" + relay.getId() + "\",\"status\":false}", null);
+            }
+            relayService.updateStatusRelayById(productId,1,false);
+            relayService.updateStatusRelayById(productId,2,false);
+            relayService.updateStatusRelayById(productId,3,false);
+            device.setStatus(false);
+            deviceService.updateDevice(device);
+            WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateDevice",
+                    "{\"event\":\"updateDevice\",\"productId\":\""+device.getProductId()+"\",\"status\":false}", null);
+
+        }
         parameterService.createParameter(parameters.get(parameters.size() - 1));
 
         double totalKWhUsed = parameters.get(parameters.size() - 1).getActivePower()*10/360000;

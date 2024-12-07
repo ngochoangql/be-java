@@ -35,6 +35,7 @@ public class RelayController {
         WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateRelay",
                 "{\"event\":\"updateRelay\",\"relayNumber\":" + relay.getRelayNumber() + ",\"id\":\"" + relay.getId() + "\",\"status\":" + relay.isStatus() + "}", null);
         System.out.println(relay.isStatus());
+        handleDeviceUpdate(device,relay.isStatus(),relay.getRelayNumber());
         return ResponseEntity.ok().body(Map.of("code", 200));
     }
 
@@ -50,6 +51,36 @@ public class RelayController {
         relayService.updateStatusRelayById(productId,1,false);
         relayService.updateStatusRelayById(productId,2,false);
         relayService.updateStatusRelayById(productId,3,false);
+        device.setStatus(false);
+        deviceService.updateDevice(device);
+        WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateDevice",
+                "{\"event\":\"updateDevice\",\"productId\":\""+device.getProductId()+"\",\"status\":false}", null);
 
+    }
+
+    public void handleDeviceUpdate(Device device,boolean status, int num) {
+        if (status) {
+            device.setStatus(true);
+            deviceService.updateDevice(device);
+            WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateDevice",
+                    "{\"event\":\"updateDevice\",\"productId\":\""+device.getProductId()+"\",\"status\":true}", null);
+
+            return;
+        }
+        List<Relay> relays = relayService.getRelaysByDeviceId(device.getId());
+        for (Relay relay : relays) {
+            if (relay.isStatus() && relay.getRelayNumber() != num) {
+                device.setStatus(true);
+                deviceService.updateDevice(device);
+                WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateDevice",
+                        "{\"event\":\"updateDevice\",\"productId\":\""+device.getProductId()+"\",\"status\":true}", null);
+
+                return;
+            }
+        }
+        device.setStatus(false);
+        deviceService.updateDevice(device);
+        WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateDevice",
+                "{\"event\":\"updateDevice\",\"productId\":\""+device.getProductId()+"\",\"status\":false}", null);
     }
 }
