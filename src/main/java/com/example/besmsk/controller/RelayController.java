@@ -32,9 +32,24 @@ public class RelayController {
     @PatchMapping("/update")
     public ResponseEntity<Object> updateRelay(@RequestBody Relay relay) {
         Device device = deviceService.getDeviceById(relay.getDeviceId());
-        WebSocketSessionManager.sendMessageToProduct(device.getProductId(),"updateRelay",
-                "{\"event\":\"updateRelay\",\"relayNumber\":"+relay.getRelayNumber()+",\"id\":\""+relay.getId()+"\",\"status\":"+relay.isStatus()+"}",null);
+        WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateRelay",
+                "{\"event\":\"updateRelay\",\"relayNumber\":" + relay.getRelayNumber() + ",\"id\":\"" + relay.getId() + "\",\"status\":" + relay.isStatus() + "}", null);
         System.out.println(relay.isStatus());
         return ResponseEntity.ok().body(Map.of("code", 200));
+    }
+
+    @GetMapping("/init/{productId}")
+    public void updateInitDevice(@PathVariable String productId) {
+
+        Device device = deviceService.getDeviceByProductId(productId);
+        List<Relay> relays = relayService.getRelaysByDeviceId(device.getId());
+        for (Relay relay : relays) {
+            WebSocketSessionManager.sendMessageToProduct(productId, "updateRelay",
+                    "{\"event\":\"updateRelay\",\"relayNumber\":"+relay.getRelayNumber()+",\"id\":\"" + relay.getId() + "\",\"status\":false}", null);
+        }
+        relayService.updateStatusRelayById(productId,1,false);
+        relayService.updateStatusRelayById(productId,2,false);
+        relayService.updateStatusRelayById(productId,3,false);
+
     }
 }

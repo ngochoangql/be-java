@@ -39,9 +39,10 @@ public class DataController {
 
         // Cập nhật thời gian của phần tử cuối cùng trong danh sách parameters
         parameters.get(parameters.size() - 1).setCreatedAt(new Date());
+        parameters.get(parameters.size() - 1).setProductId(productId);
         parameterService.createParameter(parameters.get(parameters.size() - 1));
 
-        double totalKWhUsed = parameters.get(parameters.size() - 1).getActivePower();
+        double totalKWhUsed = parameters.get(parameters.size() - 1).getActivePower()*10/360000;
         Date now = new Date();
 
         // Lấy dữ liệu used cho ngày hôm nay
@@ -50,12 +51,12 @@ public class DataController {
 
         // Nếu không có dữ liệu used, tạo mới
         if (used == null) {
-            Used createdUsed = new Used(productId, device.getId(), totalKWhUsed, 1, now);
+            Used createdUsed = new Used(productId, device.getId(), totalKWhUsed, 10, now);
             usedService.createUsed(createdUsed);
         } else {
             // Cập nhật dữ liệu used
             used.setKwh(used.getKwh() + totalKWhUsed);
-            used.setHours(used.getHours() + 1);
+            used.setHours(used.getHours() + 10);
             usedService.updateUsed(used);
         }
 

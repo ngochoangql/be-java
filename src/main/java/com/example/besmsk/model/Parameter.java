@@ -10,7 +10,6 @@ public class Parameter {
     @Id
     private String id;
     private String productId;
-    private String deviceId;
     private double current;
     private double voltage;
     private double activePower;
@@ -20,9 +19,9 @@ public class Parameter {
     public Parameter() {
     }
 
-    public Parameter(String productId, String deviceId, double current, double voltage, double activePower, double apparentPower, Date createdAt) {
+    public Parameter(String productId,double current, double voltage, double activePower, double apparentPower, Date createdAt) {
         this.productId = productId;
-        this.deviceId = deviceId;
+
         this.current = current;
         this.voltage = voltage;
         this.activePower = activePower;
@@ -33,7 +32,6 @@ public class Parameter {
     public Parameter(String id, String productId, String deviceId, double current, double voltage, double activePower, double apparentPower, Date createdAt) {
         this.id = id;
         this.productId = productId;
-        this.deviceId = deviceId;
         this.current = current;
         this.voltage = voltage;
         this.activePower = activePower;
@@ -47,14 +45,6 @@ public class Parameter {
 
     public void setProductId(String productId) {
         this.productId = productId;
-    }
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
     }
 
     public double getCurrent() {

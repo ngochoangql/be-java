@@ -48,4 +48,5 @@ public class RelayService {
     public void deleteRelays(String deviceId) {
         relayRepository.deleteRelaysByDeviceId(deviceId);
     }
+
 }
