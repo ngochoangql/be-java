@@ -2,6 +2,7 @@ package com.example.besmsk.config;
 
 import com.example.besmsk.handler.WebSocketHandler;
 import com.example.besmsk.service.DeviceService;
+import com.example.besmsk.service.LogService;
 import com.example.besmsk.service.RelayService;
 import com.example.besmsk.service.ScheduleService;
 import org.springframework.context.annotation.Configuration;
@@ -16,15 +17,17 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final RelayService relayService;
     private final ScheduleService scheduleService;
     private final DeviceService deviceService;
-    public WebSocketConfig(RelayService relayService, ScheduleService scheduleService, DeviceService deviceService) {
+    private final LogService logService;
+    public WebSocketConfig(RelayService relayService, ScheduleService scheduleService, DeviceService deviceService,LogService logService) {
         this.relayService = relayService;  // Tiêm RelayService qua constructor
         this.scheduleService = scheduleService;
         this.deviceService = deviceService;
+        this.logService = logService;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new WebSocketHandler(relayService,scheduleService,deviceService), "/websocket")
+        registry.addHandler(new WebSocketHandler(relayService,scheduleService,deviceService,logService), "/websocket")
                 .setAllowedOrigins("*"); // Cho phép tất cả các origin
     }
 }

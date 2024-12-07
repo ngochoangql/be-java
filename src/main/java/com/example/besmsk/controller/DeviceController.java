@@ -52,4 +52,8 @@ public class DeviceController {
         relayService.deleteRelays(deviceId);
     }
 
+    @GetMapping("/{productId}")
+    public Device getDeviceByProductId(@PathVariable String productId) {
+        return deviceService.getDeviceByProductId(productId);
+    }
 }
