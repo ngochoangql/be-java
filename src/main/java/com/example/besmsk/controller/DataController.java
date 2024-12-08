@@ -54,12 +54,16 @@ public class DataController {
             relayService.updateStatusRelayById(productId,3,false);
             device.setStatus(false);
             deviceService.updateDevice(device);
+            WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "notification",
+                    "{\"event\":\"notification\",\"productId\":\""+device.getProductId()+"\",\"status\":false}", null);
+
             WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateDevice",
                     "{\"event\":\"updateDevice\",\"productId\":\""+device.getProductId()+"\",\"status\":false}", null);
 
         }
-        parameterService.createParameter(parameters.get(parameters.size() - 1));
+        parameters.get(parameters.size() - 1).setProductId(productId);
 
+        parameterService.createParameter(parameters.get(parameters.size() - 1));
         double totalKWhUsed = parameters.get(parameters.size() - 1).getActivePower()*10/360000;
         Date now = new Date();
 
@@ -79,11 +83,11 @@ public class DataController {
         }
 
         // Gửi mảng dữ liệu parameters về API store_data
-        String storeDataUrl = "http://localhost:5000/api/v2/store_data/" + productId;
+        String storeDataUrl = "http://172.20.10.2:5000/api/v2/store_data/" + productId;
         restTemplate.postForObject(storeDataUrl, parameters, String.class);
 
         // Gửi phần tử cuối cùng về API data
-        String dataUrl = "http://localhost:5000/api/v2/data/" + productId;
+        String dataUrl = "http://172.20.10.2:5000/api/v2/data/" + productId;
         Parameter lastParameter = parameters.get(parameters.size() - 1);
         String response = restTemplate.postForObject(dataUrl, lastParameter, String.class);
         try {
