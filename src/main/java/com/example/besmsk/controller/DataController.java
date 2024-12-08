@@ -1,14 +1,8 @@
 package com.example.besmsk.controller;
 
 
-import com.example.besmsk.model.Device;
-import com.example.besmsk.model.Parameter;
-import com.example.besmsk.model.Relay;
-import com.example.besmsk.model.Used;
-import com.example.besmsk.service.DeviceService;
-import com.example.besmsk.service.ParameterService;
-import com.example.besmsk.service.RelayService;
-import com.example.besmsk.service.UsedService;
+import com.example.besmsk.model.*;
+import com.example.besmsk.service.*;
 import com.example.besmsk.util.WebSocketSessionManager;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,10 +30,15 @@ public class DataController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private NotificationService notificationService;
 
     @PostMapping("/{productId}")
     public void data(@RequestBody List<Parameter> parameters, @PathVariable String productId) {
         System.out.println(parameters.get(0).getActivePower());
+        notificationService.saveNotification(new Notification(productId,"1","Overload", new Date()));
+        WebSocketSessionManager.sendMessageToProduct(productId, "notification",
+                "{\"event\":\"notification\"}", null);
 
         // Cập nhật thời gian của phần tử cuối cùng trong danh sách parameters
         parameters.get(parameters.size() - 1).setCreatedAt(new Date());
