@@ -36,6 +36,14 @@ public class Notification {
         this.createAt = createAt;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     // Getters and Setters
     public String getProductId() {
         return productId;

@@ -39,6 +39,32 @@ public class RelayController {
         return ResponseEntity.ok().body(Map.of("code", 200));
     }
 
+    @GetMapping("/update/param")
+    public ResponseEntity<Object> updateRelay(@RequestParam String productId,
+                                              @RequestParam int relayNumber,
+                                              @RequestParam boolean status) {
+
+        // Get the device by productId
+        Device device = deviceService.getDeviceByProductId(productId);
+        System.out.println("Product ID: " + productId);
+
+        // Get the relay by deviceId and relayNumber
+        Relay relay = relayService.getRelayByDeviceIdAndRelayNumber(device.getId(), relayNumber);
+
+        // Send a WebSocket message to update the relay status on the product
+        WebSocketSessionManager.sendMessageToProduct(device.getProductId(), "updateRelay",
+                "{\"event\":\"updateRelay\",\"relayNumber\":" + relayNumber +
+                        ",\"id\":\"" + relay.getId() + "\",\"status\":" + status + "}", null);
+
+        // Update the device status
+        handleDeviceUpdate(device, status, relayNumber);
+
+        // Print the updated relay status
+        System.out.println("Updated Relay Status: " + status    );
+
+        // Return a success response
+        return ResponseEntity.ok().body(Map.of("code", 200));
+    }
     @GetMapping("/init/{productId}")
     public void updateInitDevice(@PathVariable String productId) {
 

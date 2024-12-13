@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/api/v1/devices")
+@Api(value = "Device Controller", description = "Operations related to Devices")
 public class DeviceController {
 
     @Autowired
@@ -20,6 +22,7 @@ public class DeviceController {
     private RelayService relayService;
 
     @GetMapping
+    @ApiOperation(value = "Get all devices", notes = "This API retrieves a list of all devices.")
     public List<Device> getAllDevices() {
         return deviceService.getAllDevices();
 
@@ -28,8 +31,6 @@ public class DeviceController {
     @PostMapping
     public Device createDevice(@RequestBody Device device) {
         Device device1 = deviceService.getDeviceByProductId(device.getProductId());
-        System.out.println(device1.getId().toString());
-
         if (device1 == null) {
             Device newDevice = deviceService.createDevice(device);
             for (int i = 1; i <= device.getNumOfRelay(); i++) {
